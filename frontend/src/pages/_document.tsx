@@ -4,13 +4,13 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <link rel="shortcut icon" href="fm.svg" />
+        <link rel="shortcut icon" href="nft_1.png" />
        
       </Head>
       <body>
         <Main />
         <NextScript />
-        <title>fmcoin</title>
+        <title>Leo x</title>
         <meta
           name="description"
           content=""

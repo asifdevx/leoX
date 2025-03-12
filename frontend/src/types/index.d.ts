@@ -1,3 +1,7 @@
+interface Window{
+  ethereum?:any
+}
+
 declare type customBtnProps = {
   title: string;
   othercss: string;
@@ -13,3 +17,17 @@ declare type InputProps = {
   value: number;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
+
+interface NFT {
+  tokenId: number;
+  name: string;
+  description: string;
+  image: string;
+  price: string;
+  owner: string;
+}
+
+interface NFTState {
+  nfts: NFT[];
+  loading: boolean;
+}

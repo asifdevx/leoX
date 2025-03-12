@@ -11,18 +11,14 @@ export const HeaderLists:HeaderLists[] = [
     islink: true,
   },
   {
-    name: "Buy now",
-    link: "/buy",
-    islink: true,
-  },
-  {
-    name: "auction",
-    link: "/auction",
-    islink: true,
-  },
-  {
     name: "profile",
     link: "/profile",
+    islink: true,
+  },
+ 
+  {
+    name: "createNft",
+    link: "/createNft",
     islink: true,
   },
   {

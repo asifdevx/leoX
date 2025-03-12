@@ -5,6 +5,7 @@ const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx}",
     "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/Layout/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -30,23 +31,7 @@ const config: Config = {
          "lightGray":"#A5BBD0"
       },
       screens: {
-        'smPro': {'min': '430px'},
-        'phone': {'max': '500px'},
-        'minphone': {'min': '500px'},
-        'middlePro': {'max': '350px'},
-        'middllarge': {'max': '380px'},
-        'doublesm': {'max': '340px'},
-        'sm': {'min': '640px', 'max': '767px'},
-         'mdPro':{'min': '640px'},
-        'esm': {'max': '767px'},
-        'gridBox': {'min': '1110px'},
-        'bigPhone':{'max': '770px'},
-         'mds':{max:"768px" },
-          'lg': '1024px',
-        'sxl':{'max': '1020px'},
-        'xl': '1280px',
-        '2xl': '1300px',
-        "bigPc":{'min': '1700px'}
+       "2xl":"1400px",
       },
       blur:{
         3 : "30px"
@@ -54,8 +39,15 @@ const config: Config = {
       boxShadow:{
         "header" : "0 0px 5px rgba(0,0,0,.2)" ,
       },
-      animation: {},
-      keyframes: {},
+      animation: {
+        "widthIncrease" : "widthIncrease 0.3s ease-in-out",
+      },
+      keyframes: {
+        widthIncrease:{
+          "0%": { width: "0%" },
+          "100%": { width: "100%" },
+        }
+      },
       aspectRatio: {
         '4/2': '4 / 2',
       },
