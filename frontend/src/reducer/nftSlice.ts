@@ -5,7 +5,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import abi from "@/components/ABI/abi.json";
 dotenv.config();
-const CONTRACT_ADDRESS = "0xf944a6Bc9e9A09781583ece2B3E114af86D427Ae";
+const CONTRACT_ADDRESS = "0x8Ef4476E5Ed07dFC9eCA640106F00841F89F5e97";
 
 const createEthContract = async () => {
   console.log("Contract Address:", CONTRACT_ADDRESS);
@@ -53,29 +53,31 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
 
   if (!nftsRaw) return [];
 
-  // Convert proxy object to a plain array
   const nftsArray = Array.from(nftsRaw);
+  console.log("nftsArray Data:", nftsArray);
 
-  // For each NFT, fetch the tokenURI metadata and return the formatted NFT data.
   const tokens = await Promise.all(
     nftsArray.map(async (nft: any) => {
-      // The raw NFT is returned as a tuple:
-      // [ tokenID, owner, seller, price, isSold ]
       const tokenId = nft[0].toString();
+      console.log("tokenId", tokenId);
+
       let metadata = { name: "", description: "", image: "" };
+      
       try {
-        // Call tokenURI to get the metadata URI then fetch it
         const tokenURI = await contract?.tokenURI(tokenId);
-        const metaRes = await axios.get(tokenURI);
+        const metaRes = await axios.get(`https://gateway.pinata.cloud/ipfs/${tokenURI.replace("ipfs://", "")}`);
         metadata = metaRes.data;
       } catch (error) {
+        const tokenURI = await contract?.tokenURI(tokenId);
+        console.log("tokenURI", tokenURI);
+
         console.error("Error fetching metadata for token", tokenId, error);
       }
       return {
         tokenId,
         name: metadata.name || `Token #${tokenId}`,
         description: metadata.description || "No description available",
-        image: metadata.image || "/placeholder.png",
+        image: `https://gateway.pinata.cloud/ipfs/${metadata.image.replace("ipfs://", "")}`|| "/placeholder.png",
         price: ethers.formatEther(nft[3]),
         owner: nft[1],
         seller: nft[2],
@@ -87,8 +89,6 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
   console.log("Formatted NFTs:", tokens);
   return tokens;
 });
-
-
 
 const initialState: NFTState = {
   nfts: [],
