@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { shortenAddress } from "../ui/ShortenAddress";
 
 const ConnectBtn = () => {
   const { disconnect } = useDisconnect();
@@ -30,16 +31,16 @@ const ConnectBtn = () => {
     <div>
       {isConnected ? (
         <div>
-          <p>Connected as: {address}</p>
+          <p>Connected as: {shortenAddress(address || "")}</p>
           <button onClick={() => disconnect()}>Disconnect</button>
         </div>
       ) : (
         <button
           onClick={() => metaMaskConnector && handleConnect(metaMaskConnector)}
           disabled={isLoading}
-          className="px-4 py-2 bg-blue text-black rounded"
+          className="px-4 py-2 bg-blue text-black rounded text-sm"
         >
-          {isLoading ? "Connecting..." : "Connect with MetaMask"}
+          {isLoading ? "Connecting..." : "Connect wallet"}
         </button>
       )}
 
@@ -49,7 +50,10 @@ const ConnectBtn = () => {
         onClose={() => setIsModalOpen(false)}
         className="relative z-50"
       >
-        <div className="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true" />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50"
+          aria-hidden="true"
+        />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-md rounded bg-[#31ecf9] p-6">
             <div className="flex flex-col items-center">
@@ -70,7 +74,7 @@ const ConnectBtn = () => {
                 }}
                 className="mt-4 px-4 py-2 bg-blue text-black rounded"
               >
-                Try Again
+                close
               </button>
             </div>
           </Dialog.Panel>

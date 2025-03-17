@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 interface Window{
   ethereum?:any
 }
@@ -10,12 +12,16 @@ declare type customBtnProps = {
   linkUrl: string;
   icon?: string;
 };
-declare type InputProps = {
+interface InputProps  {
   placeholder: string;
-  name: string;
+  name?: string;
   type: string;
-  value: number;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  inputClass?:string,
+  iconClass?:string,
+  value?: number,
+  position?:"left" | "right",
+  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: ReactNode;
 };
 
 interface NFT {

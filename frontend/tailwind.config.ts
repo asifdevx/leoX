@@ -31,6 +31,7 @@ const config: Config = {
          "lightGray":"#A5BBD0"
       },
       screens: {
+        "lg":"1000px",
        "2xl":"1400px",
       },
       blur:{
@@ -57,6 +58,9 @@ const config: Config = {
         mobileBg:"linear-gradient(0deg, rgba(255,254,254,0.6015424164524421) 33%, rgba(255,255,255,0.7069408740359897) 37%)",
       },
     },
+    fontFamily:{
+      ponomar: ["Ponomar", "system-ui"],
+    }
   },
   plugins: [],
 };

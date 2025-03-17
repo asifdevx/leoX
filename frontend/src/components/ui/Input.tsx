@@ -1,18 +1,32 @@
-import React from 'react'
+import { InputProps } from "@/types";
+import React from "react";
 
-const Input = ({ placeholder, name, type, value, handleChange }:InputProps) => {
-
+const Input = ({
+  placeholder,
+  type,
+  inputClass,
+  iconClass,
+  position,
+  icon,
+}: InputProps) => {
   return (
-    <input
-    placeholder={placeholder}
-    type={type}
-    step="1"
-    required
-    value={value}
-    onChange={handleChange}
-    className="my-2 w-full p-2 outline-none bg-white/35 text-black border-[#675e5e44] border-2 rounded-xl text-sm white-glassmorphism"
-  />
-  )
-}
+    <div className="relative w-full">
+      <input
+        placeholder={placeholder}
+        type={type}
+        className={`w-full ${inputClass} xl:placeholder:text-[15px] placeholder:text-[13px] outline-none p-2`}
+      />
+      {icon && (
+        <div
+          className={`absolute ${iconClass} ${
+            position === "left" ? "left-3 top-1/2 -translate-y-1/2" : "right-3 top-1/2 -translate-y-1/2"
+          }`}
+        >
+          {icon}
+        </div>
+      )}
+    </div>
+  );
+};
 
-export default Input
+export default Input;

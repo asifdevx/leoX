@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Ponomar&display=swap');
+
 *{
     margin:0;
     padding: 0;
@@ -36,7 +38,6 @@ h6 {
 }
 .blue-glassmorphism {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  
   }
   
 @layer utilities{

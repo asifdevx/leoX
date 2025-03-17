@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import ConnectBtn from "../HelperCom/ConnectBtn";
-
+import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
+import Input from "../ui/Input";
+import { CiMenuBurger } from "react-icons/ci";
+import { IoMdClose } from "react-icons/io";
 const index = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
   const [isScroll, setScroll] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const toggleButton = () => {
-    setIsOpen(!isOpen);
-  };
+  function toggleBtn() {
+    setOpen(!open);
+  }
 
   useEffect(() => {
     const handleScroll = () => setScroll(window.scrollY > 50);
@@ -21,41 +24,59 @@ const index = () => {
   }, []);
 
   return (
-    <div
-      className={`fixed top-0 left-0 w-full z-50 px-5 xl:px-0 ${
-        !isScroll && "bg-white"
-      }`}
-    >
-      <div
-        className={`${
-          isScroll && "backdrop-blur-2xl bg-white/30 shadow-header"
-        } rounded-3xl xl:max-w-7xl  2xl:max-w-[1450px] mx-auto flex items-center justify-between space-x-7 mt-2 py-2 px-7 transition-all duration-300 ease-in-out`}
-      >
-        {/* Logo Section */}
-        <div>
-          <Image src="fm.svg" alt="logo" width={70} height={50} />
+    <div className={`fixed top-0 left-0 bg-white w-screen text-black z-50`}>
+      <div className="w-full flex lg:grid  grid-cols-5 justify-between px-2 md:px-7 mx-auto">
+        {/* Logo section  */}
+        <div className="h-full flex items-center md:gap-10 gap-3 ">
+          <div className=" flex gap-1 items-center ">
+            <Image
+              src="/logo.png"
+              alt="logo"
+              width={60}
+              height={70}
+              className={"object-fill"}
+            />
+            <h3 className="text-2xl text-[#474343] font-ponomar">
+              Leo<span>x</span>
+            </h3>
+          </div>
+          <div className="lg:hidden items-center mt-1">
+            <HiOutlineMagnifyingGlass size={24} className="text-[#292b2b]" />
+          </div>
         </div>
-
-        {/* Navigation Links */}
-        <div className="flex items-center md:gap-8 lg:gap-16">
-          {HeaderLists.map((items, idx) => (
-            <div key={idx}>
-              {items.islink ? (
+        {/* Input section  */}
+        <div className="flex items-center lg:col-start-2 gap-5" >
+          <div className="max-w-[400px] max-lg:hidden">
+            <Input
+              placeholder={"searce your nfts"}
+              type={"text"}
+              position={"right"}
+              icon={
+                <HiOutlineMagnifyingGlass
+                  size={24}
+                  className="text-[#7a5454]"
+                />
+              }
+              inputClass={"bg-[#e8eeee] rounded-lg w-[300px]"}
+            />
+          </div>
+          <div className="flex items-center gap-5 max-lg:hidden">
+            {HeaderLists.map((items, idx) => (
+              <div key={idx}>
                 <Link
                   href={items.link || ""}
-                  className={`relative transition-transform ${
-                    pathname === items.link
-                      ? "text-blue scale-110 after:absolute after:content-[''] after:w-full after:h-[2px] after:bg-blue after:bottom-[-5px] after:left-0 after:animate-widthIncrease"
-                      : "hover:text-blue-500 hover:scale-105"
-                  }`}
+                  className={`text-lg font-ponomar text-[#313434]`}
                 >
                   {items.name}
                 </Link>
-              ) : (
-                items.name === "<ConnectBtn/>" && <ConnectBtn />
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
+        </div> 
+        {/* connect btn section  */}
+        <div className="flex gap-2 lg:col-start-5 items-center justify-center">
+          <ConnectBtn />
+          <div onClick={toggleBtn} >{open ? <IoMdClose size={24}/> : <CiMenuBurger size={24}/>}</div>
         </div>
       </div>
     </div>
