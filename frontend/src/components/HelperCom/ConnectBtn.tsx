@@ -55,10 +55,10 @@ const ConnectBtn = () => {
           aria-hidden="true"
         />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-md rounded bg-[#31ecf9] p-6">
+          <Dialog.Panel className="w-full max-w-md rounded bg-[#e5fa7a] p-6">
             <div className="flex flex-col items-center">
               <img
-                src="/fm.svg" // Replace with a MetaMask logo URL or import
+               src="/metamask.png"  // Replace with a MetaMask logo URL or import
                 alt="MetaMask Logo"
                 className="w-16 h-16 mb-4"
               />

@@ -4,6 +4,8 @@ import * as ethers from "ethers";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import abi from "@/components/ABI/abi.json";
+import { NFT, NFTState } from "@/types";
+
 dotenv.config();
 const CONTRACT_ADDRESS = "0x8Ef4476E5Ed07dFC9eCA640106F00841F89F5e97";
 

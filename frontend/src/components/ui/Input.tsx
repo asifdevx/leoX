@@ -8,13 +8,14 @@ const Input = ({
   iconClass,
   position,
   icon,
+  handleChange
 }: InputProps) => {
   return (
     <div className="relative w-full">
       <input
         placeholder={placeholder}
         type={type}
-        className={`w-full ${inputClass} xl:placeholder:text-[15px] placeholder:text-[13px] outline-none p-2`}
+        className={`${inputClass} xl:placeholder:text-[15px] placeholder:text-[13px] outline-none p-2`}
       />
       {icon && (
         <div

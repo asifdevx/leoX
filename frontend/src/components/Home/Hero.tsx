@@ -1,9 +1,10 @@
 import React from 'react'
+import LatestTransaction from '../HelperCom/LatestTransaction'
 
 const Hero = () => {
   return (
     <div>
-      hero
+      <LatestTransaction/>
     </div>
   )
 }

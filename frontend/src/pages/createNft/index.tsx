@@ -1,8 +1,14 @@
 import React, { useState } from "react";
+import axios from "axios";
+import Image from "next/image";
 import { useDispatch } from "react-redux";
 import { createNFT } from "@/reducer/nftSlice"; // Import Redux action
-import axios from "axios";
 import { AppDispatch } from "@/components/store/store";
+import { shortenAddress } from "@/components/ui/ShortenAddress";
+import { useAccount } from "wagmi";
+import { uploadFile } from "pinata";
+import { IoMdClose } from "react-icons/io";
+import { uploadMetadataToIPFS, uploadToIPFS } from "@/utils/uploadIpfs";
 
 const index = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -12,62 +18,10 @@ const index = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
+  const { address, isConnected } = useAccount();
   // Upload Image to IPFS
-  const uploadToIPFS = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await axios.post(
-        "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            pinata_api_key: process.env.NEXT_PUBLIC_PINATA_KEY,
-            pinata_secret_api_key: process.env.NEXT_PUBLIC_PINATA_SECRET,
-          },
-        }
-      );
-      console.log("url1", `ipfs://${response.data.IpfsHash}`);
-
-      return `ipfs://${response.data.IpfsHash}`;
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      setError("Error uploading image to IPFS.");
-      return null;
-    }
-  };
-
-  // Upload Metadata to IPFS
-  const uploadMetadataToIPFS = async (imageCID: string) => {
-    const metadata = {
-      name,
-      description,
-      image: imageCID,
-    };
-
-    try {
-      const response = await axios.post(
-        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-        metadata,
-        {
-          headers: {
-            pinata_api_key: process.env.NEXT_PUBLIC_PINATA_KEY,
-            pinata_secret_api_key: process.env.NEXT_PUBLIC_PINATA_SECRET,
-          },
-        }
-      );
-      console.log("url2", `ipfs://${response.data.IpfsHash}`);
-
-      return `ipfs://${response.data.IpfsHash}`;
-    } catch (error) {
-      console.error("Error uploading metadata:", error);
-      setError("Error uploading metadata to IPFS.");
-      return null;
-    }
-  };
 
   const handleCreateNFT = async () => {
     setLoading(true);
@@ -82,113 +36,114 @@ const index = () => {
     const imageCID = await uploadToIPFS(file);
     if (!imageCID) {
       setLoading(false);
-      console.log("cid 1");
-      
+      console.log("Failed to get Image CID");
+
       return;
     }
 
-    const tokenURI = await uploadMetadataToIPFS(imageCID);
+    const tokenURI = await uploadMetadataToIPFS(name,description,imageCID);
     if (!tokenURI) {
       setLoading(false);
-      console.log("cid 2");
+      console.log("Failed to get tokenURI");
 
       return;
     }
-
-    // Dispatch the Redux action to create the NFT
-
     dispatch(createNFT({ tokenURI, price: parseFloat(price) }));
-    console.log("data",tokenURI, parseFloat(price) );
-    
+    console.log("data", tokenURI, parseFloat(price), price);
+
     setLoading(false);
+  };
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0];
+    if (uploadedFile) {
+      setFile(uploadedFile);
+      setPreview(URL.createObjectURL(uploadedFile));
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">
-          Create Your NFT
-        </h2>
-
-        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-
-        <form className="space-y-6">
-          <div>
-            <label
-              className="block text-gray-700 font-medium mb-2"
-              htmlFor="name"
-            >
-              NFT Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your NFT's name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+    <div className="min-h-screen max-w-md md:max-w-lg lg:max-w-3xl xl:max-w-4xl bg-white  mx-auto flex flex-col gap-4">
+      <h3>Create your NFT</h3>
+      <p>Single edition on Ethereum</p>
+      <div className="w-full flex ">
+        <div className="w-full  grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-5 md:col-span-2">
+            {/* Show case wallet  */}
+            <div className="w-full px-4 py-2 rounded-xl border border-[#d9dddd]  flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Image src="/eth.svg" width={50} height={50} alt="eth logo" />
+                <div className="text-sm">
+                  {address && (
+                    <p className="font-bold">{shortenAddress(address)}</p>
+                  )}
+                  <p className="font-extralight">Ethereum</p>
+                </div>
+              </div>
+              {isConnected && (
+                <div className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-sm">
+                  connect
+                </div>
+              )}
+            </div>
+            <h5 className="mt-5">Upload file</h5>
+            <div className={` ${preview && "flex justify-between items-start gap-1"}  border-dashed border-2 p-6 w-full h-72 flex justify-center items-center mt-2 border-[#d9dddd] rounded-2xl relative`}>
+               
+              {preview ? (
+                <>
+                <img
+                  src={preview}
+                  alt="NFT Preview"
+                  className="w-full h-full rounded-lg"
+                  />
+                <IoMdClose size={24} onClick={()=>setPreview(null)}/>
+                  </>
+              ) : (
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <span className="text-black p-3 bg-gray-light">Upload file</span>
+                </label>
+              )}
+            </div>
           </div>
-
-          <div>
-            <label
-              className="block text-gray-700 font-medium mb-2"
-              htmlFor="description"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              rows={4}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter a description for your NFT"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+          {/* preiew compartment for pc version  */}
+          <div className="max-md:hidden">
+            {preview ? (
+              <div className="border rounded-lg p-4 bg-white w-64 shadow-lg">
+                <img
+                  src={preview}
+                  alt="NFT Preview"
+                  className="w-full  rounded-lg"
+                />
+                <div className="mt-2">
+                  <p className="text-gray-500 text-xs">Ethereum ERC-721</p>
+                  <h3 className="font-bold">leoX</h3>
+                  <div className="flex justify-between text-sm text-gray-600 mt-1">
+                    <p>Price</p>
+                    <p>Highest bid</p>
+                  </div>
+                  <div className="flex justify-between text-sm font-medium">
+                    <p className="text-gray-500">Not for sale</p>
+                    <p className="text-gray-500">No bids yet</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2">
+                  <p>preview</p>
+                  <div className="border rounded-lg p-4 bg-white w-64 h-72 shadow-lg">
+                    upload file and choose collection to preview your brand new
+                    NFT
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-
-          <div>
-            <label
-              className="block text-gray-700 font-medium mb-2"
-              htmlFor="price"
-            >
-              Price (ETH)
-            </label>
-            <input
-              id="price"
-              type="number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Set the price in ETH"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label
-              className="block text-gray-700 font-medium mb-2"
-              htmlFor="image"
-            >
-              Image
-            </label>
-            <input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCreateNFT}
-            disabled={loading}
-            className="w-full bg-blue text-black font-semibold py-3 rounded-lg hover:bg-blue focus:outline-none focus:ring-2 focus:ring-blue disabled:bg-gray"
-          >
-            {loading ? "Creating NFT..." : "Create NFT"}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

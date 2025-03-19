@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
 
-interface Window{
-  ethereum?:any
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
 }
+
 
 declare type customBtnProps = {
   title: string;
@@ -31,9 +34,20 @@ interface NFT {
   image: string;
   price: string;
   owner: string;
+  seller:string;
+  isSold:boolean
 }
 
 interface NFTState {
   nfts: NFT[];
   loading: boolean;
+}
+
+declare type MobileSideBar={
+  open:boolean,
+  setOpen:Dispatch<SetStateAction<boolean>>
+}
+declare type SearchBarProps={
+  search:boolean,
+  setSearchBar:Dispatch<SetStateAction<boolean>>
 }
