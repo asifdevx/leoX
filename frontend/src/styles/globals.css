@@ -36,6 +36,19 @@ h5 {
 h6 {
     font-size: 20px;
 }
+
+/* Hide the number input spinner in Chrome, Safari, Edge, and Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input spinner in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .blue-glassmorphism {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   }

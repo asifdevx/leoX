@@ -8,6 +8,7 @@ const Input = ({
   iconClass,
   position,
   icon,
+  value,
   handleChange
 }: InputProps) => {
   return (
@@ -16,6 +17,9 @@ const Input = ({
         placeholder={placeholder}
         type={type}
         className={`${inputClass} xl:placeholder:text-[15px] placeholder:text-[13px] outline-none p-2`}
+        onChange={handleChange}
+        onWheel={(e) => e.currentTarget.blur()}
+        value={value}
       />
       {icon && (
         <div

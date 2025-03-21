@@ -21,10 +21,10 @@ interface InputProps  {
   type: string;
   inputClass?:string,
   iconClass?:string,
-  value?: number,
+  value?: string | number;
   position?:"left" | "right",
   handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  icon?: ReactNode;
+  icon?: ReactNode | string;
 };
 
 interface NFT {
@@ -50,4 +50,9 @@ declare type MobileSideBar={
 declare type SearchBarProps={
   search:boolean,
   setSearchBar:Dispatch<SetStateAction<boolean>>
+}
+interface PreviewNFTProps{
+  preview: string | null;
+   name:string;
+   price: string;
 }

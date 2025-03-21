@@ -26,25 +26,36 @@ const createEthContract = async () => {
 
 export const createNFT = createAsyncThunk(
   "nft/createNFT",
-  async ({ tokenURI, price }: { tokenURI: string; price: number }) => {
-    const contract = await createEthContract();
-    const listprice = await contract?.getListPrice();
-    const tx = await contract?.createToken(
-      tokenURI,
-      ethers.parseEther(price.toString()),
-      {
-        value: listprice,
-        gasLimit: 3000000,
+  async (
+    { tokenURI, price }: { tokenURI: string; price: number },
+    { getState }
+  ) => {
+    try {
+      const contract = await createEthContract();
+      const listPrice = await contract?.getListPrice();
+      const tx = await contract?.createToken(
+        tokenURI,
+        ethers.parseEther(price.toString()),
+        {
+          value: listPrice,
+          gasLimit: 3000000,
+        }
+      );
+
+      if (!tx) {
+        throw new Error("Transaction failed to initialize.");
       }
-    );
-    await tx.wait();
-    console.log("List Price:", ethers.formatEther(listprice));
-    console.log("Token URI:", tokenURI);
-    console.log("Price:", ethers.parseEther(price.toString()));
+      const receipt = await tx.wait();
 
-    console.log("step 1");
+      console.log("Transaction Receipt:", receipt);
+      console.log("List Price:", ethers.formatEther(listPrice));
+      console.log("Token URI:", tokenURI);
+      console.log("Price:", ethers.parseEther(price.toString()));
 
-    return { success: true };
+      return { success: true, txHash: tx.hash };
+    } catch (error) {
+      console.error("Error creating NFT:", error);
+    }
   }
 );
 
@@ -64,10 +75,12 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
       console.log("tokenId", tokenId);
 
       let metadata = { name: "", description: "", image: "" };
-      
+
       try {
         const tokenURI = await contract?.tokenURI(tokenId);
-        const metaRes = await axios.get(`https://gateway.pinata.cloud/ipfs/${tokenURI.replace("ipfs://", "")}`);
+        const metaRes = await axios.get(
+          `https://gateway.pinata.cloud/ipfs/${tokenURI.replace("ipfs://", "")}`
+        );
         metadata = metaRes.data;
       } catch (error) {
         const tokenURI = await contract?.tokenURI(tokenId);
@@ -79,7 +92,11 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
         tokenId,
         name: metadata.name || `Token #${tokenId}`,
         description: metadata.description || "No description available",
-        image: `https://gateway.pinata.cloud/ipfs/${metadata.image.replace("ipfs://", "")}`|| "/placeholder.png",
+        image:
+          `https://gateway.pinata.cloud/ipfs/${metadata.image.replace(
+            "ipfs://",
+            ""
+          )}` || "/placeholder.png",
         price: ethers.formatEther(nft[3]),
         owner: nft[1],
         seller: nft[2],

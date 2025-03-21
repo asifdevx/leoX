@@ -4,7 +4,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { shortenAddress } from "../ui/ShortenAddress";
 
 const ConnectBtn = () => {
-  const { disconnect } = useDisconnect();
+  const { disconnect,disconnectAsync } = useDisconnect();
   const { address, isConnected } = useAccount();
   const { connectors, connectAsync } = useConnect();
 
@@ -24,6 +24,7 @@ const ConnectBtn = () => {
       console.error("Connection failed:", error);
     } finally {
       setIsLoading(false);
+      setIsModalOpen(false)
     }
   };
 

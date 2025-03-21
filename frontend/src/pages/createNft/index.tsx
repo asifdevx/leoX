@@ -9,6 +9,8 @@ import { useAccount } from "wagmi";
 import { uploadFile } from "pinata";
 import { IoMdClose } from "react-icons/io";
 import { uploadMetadataToIPFS, uploadToIPFS } from "@/utils/uploadIpfs";
+import PreviewNFT from "@/components/HelperCom/PreviewNFT";
+import Input from "@/components/ui/Input";
 
 const index = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,26 +35,35 @@ const index = () => {
       return;
     }
 
-    const imageCID = await uploadToIPFS(file);
-    if (!imageCID) {
+    try {
+      const imageCID = await uploadToIPFS(file);
+      if (!imageCID) throw new Error("Failed to get Image CID");
+
+      const tokenURI = await uploadMetadataToIPFS(name, description, imageCID);
+      if (!tokenURI) throw new Error("Failed to get tokenURI");
+
+      const response = await dispatch(
+        createNFT({ tokenURI, price: parseFloat(price) })
+      ).unwrap();
+      console.log("NFT Creation Response:", response);
+
+      if (!response || !response.txHash) {
+        throw new Error("NFT creation failed: Invalid response");
+      }
+      setPreview(null);
+      setName(" ");
+      setDescription(" ");
+      setPrice("");
+      setFile(null);
+    } catch (error) {
+      console.error(error);
+      setError("Something went wrong");
+    } finally {
       setLoading(false);
-      console.log("Failed to get Image CID");
-
-      return;
+     
     }
-
-    const tokenURI = await uploadMetadataToIPFS(name,description,imageCID);
-    if (!tokenURI) {
-      setLoading(false);
-      console.log("Failed to get tokenURI");
-
-      return;
-    }
-    dispatch(createNFT({ tokenURI, price: parseFloat(price) }));
-    console.log("data", tokenURI, parseFloat(price), price);
-
-    setLoading(false);
   };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files?.[0];
     if (uploadedFile) {
@@ -86,17 +97,24 @@ const index = () => {
               )}
             </div>
             <h5 className="mt-5">Upload file</h5>
-            <div className={` ${preview && "flex justify-between items-start gap-1"}  border-dashed border-2 p-6 w-full h-72 flex justify-center items-center mt-2 border-[#d9dddd] rounded-2xl relative`}>
-               
+            <div
+              className={` ${
+                preview && "flex justify-between  gap-1 bg-grayborder "
+              } border-dashed border-2 p-6  w-full h-72 flex justify-center items-center mt-2 border-[#d9dddd] rounded-2xl relative`}
+            >
               {preview ? (
                 <>
-                <img
-                  src={preview}
-                  alt="NFT Preview"
-                  className="w-full h-full rounded-lg"
+                  <img
+                    src={preview}
+                    alt="NFT Preview"
+                    className="w-full h-full rounded-lg"
                   />
-                <IoMdClose size={24} onClick={()=>setPreview(null)}/>
-                  </>
+                  <IoMdClose
+                    size={24}
+                    onClick={() => setPreview(null)}
+                    className=""
+                  />
+                </>
               ) : (
                 <label className="cursor-pointer">
                   <input
@@ -104,45 +122,62 @@ const index = () => {
                     onChange={handleFileUpload}
                     className="hidden"
                   />
-                  <span className="text-black p-3 bg-gray-light">Upload file</span>
+                  <span className="text-black p-3 bg-gray-light">
+                    Upload file
+                  </span>
                 </label>
               )}
             </div>
+            <div className="w-full flex flex-col gap-2">
+              <label htmlFor="price">Price</label>
+              <Input
+                placeholder={"Enter price"}
+                type={"text"} // Keep type text to allow handling of decimal points
+                position={"right"}
+                inputClass={"w-full bg-[#e8eeee] rounded-lg"}
+                handleChange={(e) => {
+                  // Remove any non-numeric characters except for the decimal point
+                  const value = e.target.value.replace(/[^0-9.]/g, "");
+
+                  // Ensure only one decimal point is allowed
+                  if ((value.match(/\./g) || []).length <= 1) {
+                    setPrice(value); // Update the price only if it's a valid number
+                  }
+                }}
+                value={price}
+                icon={"ETH"}
+              />
+            </div>
+
+            <div className="w-full flex flex-col gap-2">
+              <label htmlFor="Name">Name</label>
+              <Input
+                placeholder={`e.g."Redeemable T-Shirt with logo"`}
+                type={"text"}
+                inputClass={"w-full bg-[#e8eeee] rounded-lg"}
+                handleChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="w-full flex flex-col gap-2">
+              <label htmlFor="description">description</label>
+              <Input
+                placeholder={`e.g."After purchasing you"ll be able to get the real T-Shirt"`}
+                type={"text"}
+                inputClass={"w-full bg-[#e8eeee] rounded-lg"}
+                handleChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleCreateNFT}
+              disabled={loading}
+              className="w-full bg-blue text-black font-semibold py-3 rounded-lg hover:bg-blue focus:outline-none focus:ring-2 focus:ring-blue disabled:bg-gray"
+            >
+              {loading ? "Creating NFT..." : "Create NFT"}
+            </button>
           </div>
           {/* preiew compartment for pc version  */}
-          <div className="max-md:hidden">
-            {preview ? (
-              <div className="border rounded-lg p-4 bg-white w-64 shadow-lg">
-                <img
-                  src={preview}
-                  alt="NFT Preview"
-                  className="w-full  rounded-lg"
-                />
-                <div className="mt-2">
-                  <p className="text-gray-500 text-xs">Ethereum ERC-721</p>
-                  <h3 className="font-bold">leoX</h3>
-                  <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <p>Price</p>
-                    <p>Highest bid</p>
-                  </div>
-                  <div className="flex justify-between text-sm font-medium">
-                    <p className="text-gray-500">Not for sale</p>
-                    <p className="text-gray-500">No bids yet</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-col gap-2">
-                  <p>preview</p>
-                  <div className="border rounded-lg p-4 bg-white w-64 h-72 shadow-lg">
-                    upload file and choose collection to preview your brand new
-                    NFT
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          <PreviewNFT preview={preview} price={price} name={name} />
         </div>
       </div>
     </div>
