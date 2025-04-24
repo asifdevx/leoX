@@ -4,7 +4,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { shortenAddress } from "../ui/ShortenAddress";
 
 const ConnectBtn = () => {
-  const { disconnect,disconnectAsync } = useDisconnect();
+  const {disconnectAsync } = useDisconnect();
   const { address, isConnected } = useAccount();
   const { connectors, connectAsync } = useConnect();
 
@@ -33,7 +33,7 @@ const ConnectBtn = () => {
       {isConnected ? (
         <div>
           <p>Connected as: {shortenAddress(address || "")}</p>
-          <button onClick={() => disconnect()}>Disconnect</button>
+          <button onClick={async() =>await disconnectAsync()}>Disconnect</button>
         </div>
       ) : (
         <button

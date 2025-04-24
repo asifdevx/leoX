@@ -1,33 +1,47 @@
 import { PreviewNFTProps } from "@/types";
 import React from "react";
 
-const PreviewNFT = ({ preview,name,price }:PreviewNFTProps) => {
-  return (
-    <div className="max-md:hidden">
-      {preview ? (
-        <div className="border rounded-lg p-4 bg-grayborder w-64 shadow-lg">
-          <img src={preview} alt="NFT Preview" className="w-full  rounded-lg" />
-          <div className="mt-2">
-            <p className="text-gray-500 text-xs">Ethereum ERC-721</p>
-            <h3 className="font-bold">{name}</h3>
-            <div className="flex justify-between text-sm text-gray-600 mt-1">
-              <p>Price : {price} ETH</p>
-            </div>
-            <div className="flex justify-between text-sm font-medium">
-              <p className="text-gray">Not for sale</p>
-            </div>
+const PreviewNFT = ({ preview, name, price }: PreviewNFTProps) => {
+  function shortName(name: string) {
+    return name.length > 15 ? `${name.slice(0, 15)}...` : name;
+  }
+
+  return preview ? (
+    <div className="border rounded-lg p-4 bg-grayborder w-64 shadow-lg">
+      <p>Preview</p>
+
+      <div className="w-full bg-gray-200 flex items-center justify-center overflow-hidden rounded-lg">
+        <img
+          src={preview}
+          alt={preview}
+          className="w-full h-full object-cover aspect-square bg-gray-300"
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-xs text-gray-600">Ethereum ERC-721</p>
+        <p className="font-semibold text-lg capitalize text-gray-800">
+          {name ? shortName(name) : "untitled"}
+        </p>
+        <div className="flex bg-gray-200 w-full items-center justify-between px-3 py-2 rounded-lg">
+          <div className="flex flex-col">
+            <p className="text-sm text-gray-500">Price</p>
+            <p className="text-sm font-medium">
+              {price ? `${price} ETH` : "Not for sale"}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Highest bid</p>
+            <p className="text-lg font-bold text-indigo-600">No bids yet</p>
           </div>
         </div>
-      ) : (
-        <>
-          <div className="flex flex-col gap-2">
-            <p>preview</p>
-            <div className="border rounded-lg p-4 bg-white w-64 h-72 shadow-lg">
-              upload file and choose collection to preview your brand new NFT
-            </div>
-          </div>
-        </>
-      )}
+      </div>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-2">
+      <p>Preview</p>
+      <div className="border rounded-lg p-4 bg-white w-64 h-72 shadow-lg flex items-center justify-center text-gray-500 text-sm text-center">
+        Upload a file and choose a collection to preview your brand-new NFT.
+      </div>
     </div>
   );
 };

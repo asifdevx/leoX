@@ -9,8 +9,7 @@ import { NFT, NFTState } from "@/types";
 dotenv.config();
 const CONTRACT_ADDRESS = "0x8Ef4476E5Ed07dFC9eCA640106F00841F89F5e97";
 
-const createEthContract = async () => {
-  console.log("Contract Address:", CONTRACT_ADDRESS);
+const createEthContract = async ()=> {
   if (!window.ethereum) {
     console.error("MetaMask not detected.");
     return;
@@ -18,8 +17,6 @@ const createEthContract = async () => {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
   const contract = new ethers.Contract(CONTRACT_ADDRESS!, abi, signer);
-  console.log(await contract?.getListPrice());
-  console.log(await contract?.getCurrentToken());
 
   return contract;
 };
@@ -45,12 +42,7 @@ export const createNFT = createAsyncThunk(
       if (!tx) {
         throw new Error("Transaction failed to initialize.");
       }
-      const receipt = await tx.wait();
-
-      console.log("Transaction Receipt:", receipt);
-      console.log("List Price:", ethers.formatEther(listPrice));
-      console.log("Token URI:", tokenURI);
-      console.log("Price:", ethers.parseEther(price.toString()));
+      await tx.wait();
 
       return { success: true, txHash: tx.hash };
     } catch (error) {
@@ -71,32 +63,28 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
 
   const tokens = await Promise.all(
     nftsArray.map(async (nft: any) => {
+      
       const tokenId = nft[0].toString();
-      console.log("tokenId", tokenId);
-
       let metadata = { name: "", description: "", image: "" };
-
+      
       try {
         const tokenURI = await contract?.tokenURI(tokenId);
         const metaRes = await axios.get(
-          `https://gateway.pinata.cloud/ipfs/${tokenURI.replace("ipfs://", "")}`
+          `https://ipfs.io/ipfs/${tokenURI.replace("ipfs://", "")}`
         );
         metadata = metaRes.data;
       } catch (error) {
-        const tokenURI = await contract?.tokenURI(tokenId);
-        console.log("tokenURI", tokenURI);
-
-        console.error("Error fetching metadata for token", tokenId, error);
+        console.log(error);
       }
       return {
         tokenId,
         name: metadata.name || `Token #${tokenId}`,
         description: metadata.description || "No description available",
         image:
-          `https://gateway.pinata.cloud/ipfs/${metadata.image.replace(
+          `https://ipfs.io/ipfs/${metadata.image.replace(
             "ipfs://",
             ""
-          )}` || "/placeholder.png",
+          )}` || "https://ipfs.io/ipfs/QmV3TTBR8ZGSxWx4c9wTCybozP5nknpk3m3jDkPzcnhXhZ",
         price: ethers.formatEther(nft[3]),
         owner: nft[1],
         seller: nft[2],
@@ -105,7 +93,8 @@ export const fetchNFTs = createAsyncThunk<NFT[]>("nft/fetchNFTs", async () => {
     })
   );
 
-  console.log("Formatted NFTs:", tokens);
+  console.log("Formatted NFTs in fathchNft", tokens);
+  
   return tokens;
 });
 
@@ -126,8 +115,15 @@ const nftSlice = createSlice({
       .addCase(createNFT.fulfilled, (state) => {
         state.loading = false;
       })
+      .addCase(fetchNFTs.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchNFTs.fulfilled, (state, action) => {
         state.nfts = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchNFTs.rejected, (state) => {
+        state.loading = false;
       });
   },
 });
